@@ -72,7 +72,7 @@ canvas#game{display:block;width:100%;max-width:480px;flex:1;}
 #screen-shop{display:none;position:fixed;top:0;left:0;right:0;bottom:0;z-index:150;background:rgba(2,8,16,0.97);flex-direction:column;align-items:center;justify-content:flex-start;gap:8px;padding:14px 14px 60px;overflow-y:auto;}
 #shop-title{font-family:'Orbitron',sans-serif;font-size:16px;font-weight:900;color:var(--cyan);letter-spacing:4px;}
 #shop-subtitle{font-size:9px;letter-spacing:3px;color:var(--gold);}
-#shop-raid{font-family:'Orbitron',sans-serif;font-size:14px;color:var(--gold);}
+#shop-raid{font-family:'Orbitron',sans-serif;font-size:22px;font-weight:900;color:var(--gold);text-shadow:0 0 20px rgba(255,208,96,0.6);letter-spacing:2px;}
 .shop-tabs{display:flex;gap:6px;}
 .shop-tab{font-family:'Orbitron',sans-serif;font-size:9px;letter-spacing:2px;padding:5px 12px;border:1px solid rgba(0,212,255,0.3);background:transparent;color:var(--cyan);cursor:none;}
 .shop-tab.active{background:rgba(0,82,255,0.3);border-color:var(--cyan);}
@@ -84,7 +84,7 @@ canvas#game{display:block;width:100%;max-width:480px;flex:1;}
 .shop-emoji{font-size:20px;}
 .shop-name{font-size:8px;letter-spacing:2px;color:var(--cyan);text-align:center;}
 .shop-desc{font-size:7px;color:rgba(224,234,255,0.55);text-align:center;line-height:1.4;}
-.shop-cost{font-family:'Orbitron',sans-serif;font-size:9px;color:var(--gold);}
+.shop-cost{font-family:'Orbitron',sans-serif;font-size:10px;font-weight:700;color:var(--gold);}.shop-cost.can-buy{color:var(--green);}.shop-cost.no-buy{color:var(--red);}
 .shop-level{font-size:7px;color:var(--green);opacity:0.8;}
 .shop-skip{font-family:'Orbitron',sans-serif;font-size:10px;letter-spacing:4px;color:var(--bg);background:linear-gradient(135deg,var(--blue),var(--cyan));border:none;padding:9px 24px;cursor:none;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);}
 #screen-gameover{display:none;position:fixed;top:0;left:0;right:0;bottom:0;z-index:200;background:rgba(2,8,16,0.96);flex-direction:column;align-items:center;justify-content:center;gap:10px;}
@@ -267,10 +267,12 @@ function polyPath(c,x,y,r,sides,spikes){
 function hexPath(c,x,y,r,spikes){polyPath(c,x,y,r,6,spikes);}
 // Devuelve número de lados del nodo según nivel
 function nodePhase(lvl){
-  if(lvl<=2)return{sides:4,pipes:4};
-  if(lvl<=4)return{sides:5,pipes:5};
-  if(lvl<=6)return{sides:6,pipes:6};
-  if(lvl<=8)return{sides:7,pipes:7};
+  // Loop 2 empieza en lvl 11 — reinicia fases con más velocidad
+  const l=lvl>10?lvl-10:lvl;
+  if(l<=2)return{sides:4,pipes:4};
+  if(l<=4)return{sides:5,pipes:5};
+  if(l<=6)return{sides:6,pipes:6};
+  if(l<=8)return{sides:7,pipes:7};
   return{sides:8,pipes:8};
 }
 
@@ -321,11 +323,11 @@ function preloadInfluencers(){INFLUENCERS.forEach(inf=>{const img=new Image();im
 // SKINS
 const SKINS=[
   {id:'default',name:'DEFAULT',    emoji:'&#128309;',cost:0,    hexColor:'#00FF8C',coreColor:'rgba(0,212,255,',   charColor:'#0052FF',spikes:false,auraColor:null},
-  {id:'red',    name:'FIREWALL',   emoji:'&#128308;',cost:150,  hexColor:'#FF2D55',coreColor:'rgba(255,45,85,',   charColor:'#FF0000',spikes:false,auraColor:null},
-  {id:'gold',   name:'GOLDEN NODE',emoji:'&#128993;',cost:300,  hexColor:'#FFD060',coreColor:'rgba(255,208,96,',  charColor:'#CC8800',spikes:false,auraColor:'rgba(255,208,96,'},
-  {id:'spikes', name:'SPIKED',     emoji:'&#9889;',  cost:400,  hexColor:'#00D4FF',coreColor:'rgba(0,212,255,',   charColor:'#0052FF',spikes:true, auraColor:null},
-  {id:'rainbow',name:'RAINBOW',    emoji:'&#127752;',cost:500,  hexColor:null,      coreColor:'rgba(0,212,255,',   charColor:'#0052FF',spikes:false,auraColor:null},
-  {id:'plasma', name:'PLASMA',     emoji:'&#128995;',cost:600,  hexColor:'#AA66FF',coreColor:'rgba(170,102,255,', charColor:'#6600CC',spikes:true, auraColor:'rgba(170,102,255,'},
+  {id:'red',    name:'FIREWALL',   emoji:'&#128308;',cost:500,  hexColor:'#FF2D55',coreColor:'rgba(255,45,85,',   charColor:'#FF0000',spikes:false,auraColor:null},
+  {id:'gold',   name:'GOLDEN NODE',emoji:'&#128993;',cost:900,  hexColor:'#FFD060',coreColor:'rgba(255,208,96,',  charColor:'#CC8800',spikes:false,auraColor:'rgba(255,208,96,'},
+  {id:'spikes', name:'SPIKED',     emoji:'&#9889;',  cost:1500, loop2:true,  hexColor:'#00D4FF',coreColor:'rgba(0,212,255,',   charColor:'#0052FF',spikes:true, auraColor:null},
+  {id:'rainbow',name:'RAINBOW',    emoji:'&#127752;',cost:2500, hexColor:null,      coreColor:'rgba(0,212,255,',   charColor:'#0052FF',spikes:false,auraColor:null,loop2:true},
+  {id:'plasma', name:'PLASMA',     emoji:'&#128995;',cost:3500, hexColor:'#AA66FF',coreColor:'rgba(170,102,255,', charColor:'#6600CC',spikes:true, auraColor:'rgba(170,102,255,',loop2:true},
   {id:'daily1', name:'DAILY HERO', emoji:'&#128197;',cost:0,exclusive:true,hexColor:'#00FF8C',coreColor:'rgba(0,255,140,',  charColor:'#006633',spikes:false,auraColor:'rgba(0,255,140,'},
   {id:'daily2', name:'CHAIN LORD', emoji:'&#128081;',cost:0,exclusive:true,hexColor:'#FFD060',coreColor:'rgba(255,208,96,', charColor:'#8B6914',spikes:true, auraColor:'rgba(255,208,96,'},
 ];
@@ -365,16 +367,16 @@ const TX_MSGS=['\u2713 TX CONFIRMED \u2014 BLOCK #9,112,045','\u2713 CONTRACT DE
 
 // SHOP UPGRADES
 const SHOP_DEFS=[
-  {id:'firewall', emoji:'\u26a1', name:'FIREWALL',   desc:'Bullet speed +20%',    baseCost:50},
-  {id:'shield',   emoji:'\u{1F6E1}\uFE0F',name:'SHIELD++',  desc:'+1 extra life',        baseCost:80},
-  {id:'multishot',emoji:'\u{1F500}',name:'MULTI-SHOT',desc:'+1 extra pipe shot',   baseCost:150},
-  {id:'doublepts',emoji:'\u{1F48E}',name:'DOUBLE PTS',desc:'Score multiplier +1',  baseCost:120},
-  {id:'nuke',     emoji:'\u{1F4A3}',name:'NUKE',      desc:'Clear screen (1 use)', baseCost:200},
-  {id:'magnet',   emoji:'\u{1F9F2}',name:'MAGNET',    desc:'Auto-kill every 8s',   baseCost:250,maxLevel:1},
-  {id:'cryo',     emoji:'\u2744\uFE0F',name:'CRYO',   desc:'Freeze all on damage', baseCost:180,maxLevel:1},
-  {id:'regen',    emoji:'\u{1F50B}',name:'REGEN',     desc:'+1 life per 3 levels', baseCost:300,maxLevel:1},
+  {id:'firewall', emoji:'\u26a1',          name:'FIREWALL',   desc:'Bullet speed +20%',    baseCost:300, maxLevel:3},
+  {id:'shield',   emoji:'\u{1F6E1}\uFE0F',name:'SHIELD++',  desc:'+1 extra life',        baseCost:350, maxLevel:3},
+  {id:'doublepts',emoji:'\u{1F48E}',        name:'DOUBLE PTS',desc:'Score multiplier +1',  baseCost:400, maxLevel:3},
+  {id:'nuke',     emoji:'\u{1F4A3}',        name:'NUKE',      desc:'Clear screen (1 use)', baseCost:300, maxLevel:3},
+  {id:'multishot',emoji:'\u{1F500}',        name:'MULTI-SHOT',desc:'+1 extra pipe shot',   baseCost:800, maxLevel:3, loop2:true},
+  {id:'magnet',   emoji:'\u{1F9F2}',        name:'MAGNET',    desc:'Auto-kill every 8s',   baseCost:1000,maxLevel:1, loop2:true},
+  {id:'cryo',     emoji:'\u2744\uFE0F',    name:'CRYO',      desc:'Freeze all on damage', baseCost:900, maxLevel:1, loop2:true},
+  {id:'regen',    emoji:'\u{1F50B}',        name:'REGEN',     desc:'+1 life per 3 levels', baseCost:1200,maxLevel:1, loop2:true},
 ];
-function shopCost(def){return Math.floor(def.baseCost*Math.pow(1.6,ST.upgradeLevels[def.id]||0));}
+function shopCost(def){return Math.floor(def.baseCost*Math.pow(2.0,ST.upgradeLevels[def.id]||0));}
 
 // DAILY / STREAK
 function getDailySeed(){const d=new Date();return d.getFullYear()*10000+((d.getMonth()+1)*100)+d.getDate();}
@@ -439,103 +441,56 @@ const PIPE_COLORS=[
 function buildPipes(){
   const W=gc.width, H=gc.height;
   const cx=W/2, cy=H/2;
-  const X=[W*0.06,W*0.19,W*0.32,W*0.45,W*0.55,W*0.68,W*0.81,W*0.94];
-  const Y=[H*0.05,H*0.17,H*0.29,H*0.41,H*0.59,H*0.71,H*0.83,H*0.95];
-  const [xa,xb,xc,xd,xe,xf,xg,xh]=X;
-  const [ya,yb,yc,yd,ye,yf,yg,yh]=Y;
-  const L=0, R=W, T=0, B=H;
-  const lvl=ST.level;
-  const phase=nodePhase(lvl);
+  const lvl=ST.level>10?ST.level-10:ST.level;
+  const phase=nodePhase(ST.level);
 
-  // ─────────────────────────────────────────────
-  // F1 — cuadrado (4 pipes), llegada RECTA al nodo
-  // ─────────────────────────────────────────────
-  // Los 4 pipes llegan al centro en dirección N/S/E/W puro.
-  // Versión A (lvl 1): trayectorias simples en L
-  // Versión B (lvl 2): S-curves en P0/P1
-  const F1a=[
-    [{x:L,y:yb},{x:xh,y:yb},{x:xh,y:yf},{x:xb,y:yf},{x:xb,y:cy},{x:cx,y:cy}],  // P0 blue  →W
-    [{x:R,y:yg},{x:xa,y:yg},{x:xa,y:yc},{x:xg,y:yc},{x:xg,y:cy},{x:cx,y:cy}],  // P1 red   ←E
-    [{x:xd,y:T},{x:xd,y:ye},{x:cx,y:ye},{x:cx,y:cy}],                            // P2 green ↓N
-    [{x:xe,y:B},{x:xe,y:yd},{x:cx,y:yd},{x:cx,y:cy}],                            // P3 purple↑S
+  const F1=[
+    [{x:W*0,y:H*0.250},{x:W*0.167,y:H*0.250},{x:W*0.167,y:H*0.750},{x:W*0.333,y:H*0.750},{x:W*0.333,y:H*0.375},{x:cx,y:H*0.375},{x:cx,y:cy}],
+    [{x:W,y:H*0.125},{x:W*0.750,y:H*0.125},{x:W*0.750,y:H*0.625},{x:W*0.250,y:H*0.625},{x:W*0.250,y:cy},{x:cx,y:cy}],
+    [{x:W*0.833,y:H},{x:W*0.833,y:H*0.250},{x:W*0.667,y:H*0.250},{x:W*0.667,y:H*0.813},{x:W*0.083,y:H*0.813},{x:W*0.083,y:H*0.438},{x:W*0.583,y:H*0.438},{x:W*0.583,y:cy},{x:cx,y:cy}],
+    [{x:W*0.250,y:0},{x:W*0.250,y:H*0.188},{x:W*0.917,y:H*0.188},{x:W*0.917,y:H*0.688},{x:cx,y:H*0.688},{x:cx,y:cy}]
   ];
-  const F1b=[
-    [{x:L,y:yb},{x:xh,y:yb},{x:xh,y:yd},{x:xf,y:yd},{x:xf,y:yf},{x:xb,y:yf},{x:xb,y:cy},{x:cx,y:cy}],
-    [{x:R,y:yg},{x:xa,y:yg},{x:xa,y:ye},{x:xc,y:ye},{x:xc,y:yc},{x:xg,y:yc},{x:xg,y:cy},{x:cx,y:cy}],
-    [{x:xd,y:T},{x:xd,y:ye},{x:cx,y:ye},{x:cx,y:cy}],
-    [{x:xe,y:B},{x:xe,y:yd},{x:cx,y:yd},{x:cx,y:cy}],
-  ];
-
-  // ─────────────────────────────────────────────
-  // F2 — pentágono (5 pipes), llegada DIAGONAL
-  // P4 (gold) llega al nodo en diagonal desde abajo-derecha
-  // ─────────────────────────────────────────────
-  // Radio del nodo ~38px. Para diagonal de 45°, el punto de quiebre está
-  // a ~27px del centro (38/√2 ≈ 27). Con un offset de 40px para zona limpia:
-  const d2=64; // distancia del punto de giro diagonal al cx,cy
   const F2=[
-    [{x:L,y:yb},{x:xh,y:yb},{x:xh,y:yf},{x:xb,y:yf},{x:xb,y:cy},{x:cx,y:cy}],
-    [{x:R,y:yg},{x:xa,y:yg},{x:xa,y:yc},{x:xg,y:yc},{x:xg,y:cy},{x:cx,y:cy}],
-    [{x:xd,y:T},{x:xd,y:yc},{x:cx,y:yc},{x:cx,y:cy}],
-    [{x:xe,y:B},{x:xe,y:yf},{x:cx,y:yf},{x:cx,y:cy}],
-    // P4 gold: borde superior-derecho → giro hacia centro en diagonal ↙
-    [{x:R,y:yb},{x:xf,y:yb},{x:xf,y:yc},{x:cx+d2,y:yc},{x:cx,y:cy}],
+    [{x:W,y:H*0.938},{x:W*0.083,y:H*0.938},{x:W*0.083,y:H*0.125},{x:W*0.333,y:H*0.125},{x:W*0.333,y:H*0.375},{x:cx,y:cy}],
+    [{x:W*0,y:H*0.813},{x:W*0.167,y:H*0.813},{x:W*0.167,y:H*0.188},{x:cx,y:H*0.188},{x:cx,y:cy}],
+    [{x:W*0.333,y:H},{x:W*0.333,y:H*0.750},{x:W*0.750,y:H*0.750},{x:W*0.750,y:H*0.125},{x:W*0.667,y:H*0.125},{x:W*0.667,y:H*0.375},{x:cx,y:cy}],
+    [{x:W,y:H*0.563},{x:W*0.333,y:H*0.563},{x:W*0.333,y:cy},{x:cx,y:cy}],
+    [{x:W,y:H*0.250},{x:W*0.250,y:H*0.250},{x:W*0.250,y:H*0.625},{x:W*0.667,y:H*0.625},{x:W*0.667,y:cy},{x:cx,y:cy}]
   ];
-
-  // ─────────────────────────────────────────────
-  // F3 — hexágono (6 pipes), llegada DIAGONAL
-  // P5 (cyan) llega desde abajo-izquierda ↗
-  // ─────────────────────────────────────────────
   const F3=[
-    [{x:L,y:yb},{x:xh,y:yb},{x:xh,y:yf},{x:xb,y:yf},{x:xb,y:cy},{x:cx,y:cy}],
-    [{x:R,y:yg},{x:xa,y:yg},{x:xa,y:yc},{x:xg,y:yc},{x:xg,y:cy},{x:cx,y:cy}],
-    [{x:xd,y:T},{x:xd,y:yc},{x:cx,y:yc},{x:cx,y:cy}],
-    [{x:xe,y:B},{x:xe,y:yf},{x:cx,y:yf},{x:cx,y:cy}],
-    [{x:R,y:yb},{x:xf,y:yb},{x:xf,y:yc},{x:cx+d2,y:yc},{x:cx,y:cy}],
-    // P5 cyan: borde inferior-izquierdo → diagonal ↗
-    [{x:L,y:yg},{x:xc,y:yg},{x:xc,y:yf},{x:cx-d2,y:yf},{x:cx,y:cy}],
+    [{x:W*0.417,y:H},{x:W*0.417,y:H*0.813},{x:W*0.917,y:H*0.813},{x:W*0.917,y:H*0.375},{x:cx,y:H*0.375},{x:cx,y:cy}],
+    [{x:W*0,y:H*0.688},{x:W*0.333,y:H*0.688},{x:W*0.333,y:H*0.875},{x:W*0.833,y:H*0.875},{x:W*0.833,y:H*0.250},{x:W*0.250,y:H*0.250},{x:W*0.250,y:H*0.375},{x:cx,y:cy}],
+    [{x:W,y:H*0.313},{x:W*0.083,y:H*0.313},{x:W*0.083,y:H*0.563},{x:cx,y:cy}],
+    [{x:W*0.750,y:0},{x:W*0.750,y:H*0.188},{x:W*0.417,y:H*0.188},{x:W*0.417,y:H*0.688},{x:W*0.667,y:H*0.688},{x:W*0.667,y:H*0.625},{x:cx,y:cy}],
+    [{x:W*0.333,y:0},{x:W*0.333,y:H*0.125},{x:W*0.667,y:H*0.125},{x:W*0.667,y:H*0.438},{x:cx,y:cy}],
+    [{x:W*0,y:H*0.125},{x:W*0.167,y:H*0.125},{x:W*0.167,y:H*0.750},{x:cx,y:H*0.750},{x:cx,y:cy}]
   ];
-
-  // ─────────────────────────────────────────────
-  // F4 — heptágono (7 pipes), llegada DIAGONAL
-  // P6 (orange) llega desde arriba-izquierda ↘
-  // ─────────────────────────────────────────────
   const F4=[
-    [{x:L,y:yb},{x:xh,y:yb},{x:xh,y:yf},{x:xb,y:yf},{x:xb,y:cy},{x:cx,y:cy}],
-    [{x:R,y:yg},{x:xa,y:yg},{x:xa,y:yc},{x:xg,y:yc},{x:xg,y:cy},{x:cx,y:cy}],
-    [{x:xd,y:T},{x:xd,y:yc},{x:cx,y:yc},{x:cx,y:cy}],
-    [{x:xe,y:B},{x:xe,y:yf},{x:cx,y:yf},{x:cx,y:cy}],
-    [{x:R,y:yb},{x:xf,y:yb},{x:xf,y:yc},{x:cx+d2,y:yc},{x:cx,y:cy}],
-    [{x:L,y:yg},{x:xc,y:yg},{x:xc,y:yf},{x:cx-d2,y:yf},{x:cx,y:cy}],
-    // P6 orange: top-izquierda → diagonal ↘
-    [{x:L,y:ya},{x:xb,y:ya},{x:xb,y:yb},{x:cx-d2,y:yc},{x:cx,y:cy}],
+    [{x:W*0,y:H*0.750},{x:W*0.167,y:H*0.750},{x:W*0.167,y:H*0.313},{x:W*0.750,y:H*0.313},{x:W*0.750,y:H*0.688},{x:cx,y:H*0.688},{x:cx,y:cy}],
+    [{x:W*0.667,y:H},{x:W*0.667,y:H*0.188},{x:W*0.917,y:H*0.188},{x:W*0.917,y:H*0.750},{x:W*0.417,y:H*0.750},{x:W*0.417,y:H*0.625},{x:cx,y:cy}],
+    [{x:W*0.083,y:0},{x:W*0.083,y:H*0.188},{x:cx,y:H*0.188},{x:cx,y:H*0.250},{x:W*0.083,y:H*0.250},{x:W*0.083,y:H*0.563},{x:cx,y:cy}],
+    [{x:W,y:H*0.063},{x:W*0.250,y:H*0.063},{x:W*0.250,y:H*0.125},{x:W*0.417,y:H*0.125},{x:W*0.417,y:H*0.375},{x:cx,y:cy}],
+    [{x:W*0.583,y:0},{x:W*0.583,y:H*0.125},{x:W*0.833,y:H*0.125},{x:W*0.833,y:H*0.375},{x:cx,y:H*0.375},{x:cx,y:cy}],
+    [{x:W*0.833,y:H},{x:W*0.833,y:H*0.875},{x:W*0.167,y:H*0.875},{x:W*0.167,y:H*0.813},{x:W*0.833,y:H*0.813},{x:W*0.833,y:cy},{x:cx,y:cy}]
   ];
-
-  // ─────────────────────────────────────────────
-  // F5 — octógono (8 pipes), llegada DIAGONAL
-  // P7 (white) llega desde arriba-derecha ↙
-  // ─────────────────────────────────────────────
   const F5=[
-    [{x:L,y:yb},{x:xh,y:yb},{x:xh,y:yf},{x:xb,y:yf},{x:xb,y:cy},{x:cx,y:cy}],
-    [{x:R,y:yg},{x:xa,y:yg},{x:xa,y:yc},{x:xg,y:yc},{x:xg,y:cy},{x:cx,y:cy}],
-    [{x:xd,y:T},{x:xd,y:yc},{x:cx,y:yc},{x:cx,y:cy}],
-    [{x:xe,y:B},{x:xe,y:yf},{x:cx,y:yf},{x:cx,y:cy}],
-    [{x:R,y:yb},{x:xf,y:yb},{x:xf,y:yc},{x:cx+d2,y:yc},{x:cx,y:cy}],
-    [{x:L,y:yg},{x:xc,y:yg},{x:xc,y:yf},{x:cx-d2,y:yf},{x:cx,y:cy}],
-    [{x:L,y:ya},{x:xb,y:ya},{x:xb,y:yb},{x:cx-d2,y:yc},{x:cx,y:cy}],
-    // P7 white: top-derecha → diagonal ↙
-    [{x:R,y:ya},{x:xg,y:ya},{x:xg,y:yb},{x:cx+d2,y:yf},{x:cx,y:cy}],
+    [{x:W*0.250,y:H},{x:W*0.250,y:H*0.875},{x:W*0.833,y:H*0.875},{x:W*0.833,y:H*0.438},{x:cx,y:H*0.438},{x:cx,y:cy}],
+    [{x:cx,y:H},{x:cx,y:H*0.813},{x:W*0.083,y:H*0.813},{x:W*0.083,y:H*0.750},{x:W*0.750,y:H*0.750},{x:W*0.750,y:H*0.313},{x:W*0.167,y:H*0.313},{x:W*0.167,y:H*0.375},{x:cx,y:cy}],
+    [{x:W*0,y:H*0.438},{x:W*0.250,y:H*0.438},{x:W*0.250,y:H*0.250},{x:W*0.667,y:H*0.250},{x:W*0.667,y:H*0.375},{x:cx,y:cy}],
+    [{x:cx,y:0},{x:cx,y:H*0.375},{x:W*0.417,y:H*0.375},{x:W*0.417,y:H*0.188},{x:W*0.083,y:H*0.188},{x:W*0.083,y:cy},{x:cx,y:cy}],
+    [{x:W*0,y:H*0.563},{x:W*0.167,y:H*0.563},{x:W*0.167,y:H*0.688},{x:cx,y:cy}],
+    [{x:W*0.667,y:H},{x:W*0.667,y:H*0.938},{x:W*0.917,y:H*0.938},{x:W*0.917,y:H*0.813},{x:W*0.750,y:H*0.813},{x:cx,y:H*0.625},{x:cx,y:cy}],
+    [{x:W*0,y:H*0.938},{x:W*0.417,y:H*0.938},{x:W*0.417,y:H*0.688},{x:W*0.917,y:H*0.688},{x:W*0.917,y:H*0.625},{x:cx,y:cy}],
+    [{x:W*0.083,y:0},{x:W*0.083,y:H*0.063},{x:W*0.917,y:H*0.063},{x:W*0.917,y:cy},{x:cx,y:cy}]
   ];
 
   let paths;
-  if(lvl<=1)      paths=F1a;
-  else if(lvl<=2) paths=F1b;
+  if(lvl<=2)      paths=F1;
   else if(lvl<=4) paths=F2;
   else if(lvl<=6) paths=F3;
   else if(lvl<=8) paths=F4;
   else            paths=F5;
 
-  // Recortar al número de pipes de la fase actual (por si acaso)
   return paths.slice(0,phase.pipes).map((path,i)=>({id:'P'+i,path}));
 }
 
@@ -601,7 +556,7 @@ function spawnEnemy(forceType){
   if(!ST.pipes.length)return;
   const pipe=ST.pipes[Math.floor(Math.random()*ST.pipes.length)];
   const type=forceType||(()=>{let pool=ST.level<=2?ENEMY_TYPES.slice(0,3):ST.level<=4?ENEMY_TYPES.slice(0,5):ENEMY_TYPES;return pool[Math.floor(Math.random()*pool.length)];})();
-  const spd=type.speed*(1+(ST.level-1)*0.18);
+  const loop2=ST.level>10;const spd=type.speed*(loop2?(1+0.60+(ST.level-11)*0.08):(1+(ST.level-1)*0.10));
   ST.enemies.push({pipe:pipe.id,pathIdx:0,t:0,speed:spd,type,hp:type.hp,maxHp:type.hp,x:pipe.path[0].x,y:pipe.path[0].y,hitFlash:0,zigPhase:0,entering:0.5,shieldActive:false,shieldTimer:0,elite:type.elite,isBoss:false});
 }
 function spawnBoss(){
@@ -610,7 +565,7 @@ function spawnBoss(){
   document.getElementById('boss-alert').style.display='block';
   setTimeout(()=>document.getElementById('boss-alert').style.display='none',2200);
   const pipe=ST.pipes[0];
-  ST.enemies.push({pipe:pipe.id,pathIdx:0,t:0,speed:BOSS_TYPE.speed*(1+(ST.level-1)*0.1),type:BOSS_TYPE,hp:BOSS_TYPE.hp,maxHp:BOSS_TYPE.hp,x:pipe.path[0].x,y:pipe.path[0].y,hitFlash:0,zigPhase:0,entering:0.5,isBoss:true,shieldActive:false,shieldTimer:0,shieldCD:5});
+  ST.enemies.push({pipe:pipe.id,pathIdx:0,t:0,speed:BOSS_TYPE.speed*(ST.level>10?(1+0.40+(ST.level-11)*0.06):(1+(ST.level-1)*0.06)),type:BOSS_TYPE,hp:BOSS_TYPE.hp,maxHp:BOSS_TYPE.hp,x:pipe.path[0].x,y:pipe.path[0].y,hitFlash:0,zigPhase:0,entering:0.5,isBoss:true,shieldActive:false,shieldTimer:0,shieldCD:5});
   ST.bossActive=true;
 }
 function spawnPowerup(){
@@ -889,10 +844,10 @@ function gameLoop(ts){
 
   const spawnMult=ST.frenzyTime>0?0.18:1;
   spawnTimer+=dt;
-  const baseInterval=Math.max(0.35,2.2-ST.level*0.18)*spawnMult;
+  const baseInterval=(ST.level>10?Math.max(0.40,2.2-(ST.level-10)*0.15):Math.max(0.60,2.8-ST.level*0.18))*spawnMult;
   if(spawnTimer>=baseInterval){
     spawnTimer=0;
-    const cnt=ST.level>=6?Math.floor(1+ST.level*0.15):1;
+    const cnt=ST.level>10?Math.min(3,Math.floor(1+(ST.level-10)*0.15)):ST.level>=8?2:1;
     for(let i=0;i<cnt;i++)spawnEnemy();
     spawnPowerup();spawnInfluencer();
     if(ST.level>=7&&Math.random()>0.72){const rp=ST.pipes[Math.floor(Math.random()*ST.pipes.length)];if(rp)ST.blockedPipes[rp.id]=3;}
@@ -940,7 +895,7 @@ function gameLoop(ts){
         spawnParticles(e.x,e.y,e.isBoss?'#FF0000':e.type.color,dmg>1?14:5);
         if(e.hp<=0){
           const multi=(ST.scoreMulti||1)*(ST.frenzyTime>0?5:1);
-          addScore(e.type.points*multi);addRaid(Math.ceil(e.type.points/10));addProgress(e.isBoss?40:8);
+          addScore(e.type.points*multi);addRaid(Math.ceil(e.type.points/10));addProgress(e.isBoss?25:4);
           ST.totalKills++;if(e.type&&e.type.isRug)ST.rugpullKills++;
           if(e.isBoss){ST.bossActive=false;ST.bossKills++;triggerSlowMo(1.2);spawnParticles(e.x,e.y,'#FF0000',50);}
           SFX.kill();addKillCombo();ST.enemies.splice(j,1);checkAchievements();
@@ -975,7 +930,9 @@ function loseLife(){
 }
 function levelUp(){
   ST.level++;ST.progress=0;document.getElementById('prog-fill').style.width='0%';
-  document.getElementById('hud-level').textContent='LVL '+String(ST.level).padStart(2,'0');
+  const loop=ST.level>10?2:1;
+  const dispLvl=ST.level>10?ST.level-10:ST.level;
+  document.getElementById('hud-level').textContent='L'+loop+' LVL '+String(dispLvl).padStart(2,'0');
   if(ST.level>=3&&!ST.reachedLevel3){
     ST.reachedLevel3=true;const ns=updateStreak();if(ns)addRaid(ns*5);
     if(!isDailyDone()){markDailyDone();showAchievement({emoji:'\u{1F4C5}',name:'DAILY COMPLETE'});}
@@ -1002,21 +959,38 @@ function gameOver(){
 // SHOP
 let shopTab='upgrades';
 function openShop(){
-  document.getElementById('shop-raid').textContent='\u2b21 '+ST.raid+' $RAID';
+  document.getElementById('shop-raid').textContent='\u2b21 '+ST.raid.toLocaleString()+' $RAID';
   renderShop(shopTab);document.getElementById('screen-shop').style.display='flex';
 }
 function renderShop(tab){
   shopTab=tab;
   document.getElementById('tab-upgrades').className='shop-tab'+(tab==='upgrades'?' active':'');
   document.getElementById('tab-skins').className='shop-tab'+(tab==='skins'?' active':'');
+  // Actualizar $RAID visible
+  document.getElementById('shop-raid').textContent='\u2b21 '+ST.raid.toLocaleString()+' $RAID';
+  const isLoop2=ST.level>10;
   const grid=document.getElementById('shop-grid');grid.innerHTML='';
+
   if(tab==='upgrades'){
-    SHOP_DEFS.forEach(def=>{
-      const lvl=ST.upgradeLevels[def.id]||0,atMax=def.maxLevel!=null&&lvl>=def.maxLevel,cost=atMax?0:shopCost(def),cantAfford=!atMax&&ST.raid<cost;
-      const div=document.createElement('div');div.className='shop-item'+(cantAfford?' cant-afford':'');
-      div.innerHTML='<div class="shop-emoji">'+def.emoji+'</div><div class="shop-name">'+def.name+'</div><div class="shop-desc">'+(atMax?'\u2713 MAXED':def.desc)+'</div><div class="shop-cost">'+(atMax?'':cost+' $RAID')+'</div><div class="shop-level">'+(atMax?'MAX':lvl>0?'LVL '+lvl:'')+'</div>';
+    SHOP_DEFS.filter(d=>!d.loop2||isLoop2).forEach(def=>{
+      const lvl=ST.upgradeLevels[def.id]||0;
+      const atMax=def.maxLevel!=null&&lvl>=def.maxLevel;
+      const cost=atMax?0:shopCost(def);
+      const cantAfford=!atMax&&ST.raid<cost;
+      const div=document.createElement('div');
+      div.className='shop-item'+(atMax?' owned':cantAfford?' cant-afford':'');
+      const lvlBar=def.maxLevel>1?(' \u2588'.repeat(lvl)+'\u2591'.repeat((def.maxLevel||3)-lvl)):'';
+      const costClass=atMax?'':'shop-cost '+(cantAfford?'no-buy':'can-buy');
+      const nextCost=!atMax&&lvl<(def.maxLevel||3)-1?' → '+(shopCost({...def,baseCost:def.baseCost*Math.pow(2,lvl+1)|0})):'';
+      div.innerHTML=
+        '<div class="shop-emoji">'+def.emoji+'</div>'+
+        '<div class="shop-name">'+def.name+(lvl>0?' LVL'+lvl:'')+'</div>'+
+        '<div class="shop-desc">'+(atMax?'\u2713 MAXED':def.desc)+'</div>'+
+        (def.maxLevel>1&&!atMax?'<div class="shop-level">'+lvlBar+'</div>':'')+
+        '<div class="'+costClass+'">'+(atMax?'MAXED':cost.toLocaleString()+' $RAID')+'</div>';
       if(!atMax&&!cantAfford)div.addEventListener('click',()=>{
-        ST.raid-=cost;ST.totalSpent+=cost;localStorage.setItem('raid',ST.raid);ST.upgradeLevels[def.id]=(ST.upgradeLevels[def.id]||0)+1;
+        ST.raid-=cost;ST.totalSpent+=cost;localStorage.setItem('raid',ST.raid);
+        ST.upgradeLevels[def.id]=(ST.upgradeLevels[def.id]||0)+1;
         const l=ST.upgradeLevels[def.id];
         if(def.id==='firewall')ST.bulletSpeed=5+l*1.2;
         else if(def.id==='shield'){ST.lives=Math.min(ST.lives+1,9);updateLivesHUD();}
@@ -1030,17 +1004,37 @@ function renderShop(tab){
       });
       grid.appendChild(div);
     });
+    // Banner loop2 si no estás en loop2
+    if(!isLoop2){
+      const banner=document.createElement('div');
+      banner.style.cssText='grid-column:1/-1;text-align:center;padding:10px;border:1px solid rgba(255,208,96,0.3);border-radius:5px;';
+      banner.innerHTML='<div style="font-size:9px;color:rgba(255,208,96,0.5);letter-spacing:2px;">\u{1F512} LOOP 2 UNLOCKS MORE</div><div style="font-size:8px;color:rgba(255,208,96,0.3);margin-top:3px;">Reach level 11</div>';
+      grid.appendChild(banner);
+    }
   }else{
     const owned=getOwnedSkins();
-    SKINS.forEach(skin=>{
-      const isOwned=owned.includes(skin.id),isActive=ST.activeSkin===skin.id,cantAfford=!isOwned&&ST.raid<skin.cost,isExclusive=skin.exclusive&&!isOwned;
-      const div=document.createElement('div');div.className='shop-item'+(isActive?' owned':cantAfford||isExclusive?' cant-afford':'');
-      const statusTxt=isActive?'\u2713 ACTIVE':isOwned?'EQUIP':isExclusive?'\u{1F4C5} DAILY REWARD':skin.cost+' $RAID';
-      div.innerHTML='<div class="shop-emoji">'+skin.emoji+'</div><div class="shop-name">'+skin.name+'</div><div class="shop-desc">'+(skin.exclusive?'Daily challenge reward':'Visual skin')+'</div><div class="shop-cost">'+statusTxt+'</div>';
+    SKINS.filter(s=>!s.loop2||isLoop2).forEach(skin=>{
+      const isOwned=owned.includes(skin.id),isActive=ST.activeSkin===skin.id;
+      const cantAfford=!isOwned&&ST.raid<skin.cost,isExclusive=skin.exclusive&&!isOwned;
+      const div=document.createElement('div');
+      div.className='shop-item'+(isActive?' owned':cantAfford||isExclusive?' cant-afford':'');
+      const costTxt=isActive?'\u2713 ACTIVE':isOwned?'EQUIP':isExclusive?'\u{1F4C5} DAILY':skin.cost.toLocaleString()+' $RAID';
+      const costClass=isActive||isOwned||isExclusive?'shop-cost':(cantAfford?'shop-cost no-buy':'shop-cost can-buy');
+      div.innerHTML=
+        '<div class="shop-emoji">'+skin.emoji+'</div>'+
+        '<div class="shop-name">'+skin.name+'</div>'+
+        '<div class="shop-desc">'+(skin.exclusive?'Daily reward':'Visual skin')+'</div>'+
+        '<div class="'+costClass+'">'+costTxt+'</div>';
       if(isOwned&&!isActive)div.addEventListener('click',()=>{ST.activeSkin=skin.id;document.getElementById('hud-skin').textContent=skin.emoji;renderShop('skins');});
       else if(!isOwned&&!isExclusive&&!cantAfford)div.addEventListener('click',()=>{ST.raid-=skin.cost;ST.totalSpent+=skin.cost;localStorage.setItem('raid',ST.raid);const s=getOwnedSkins();s.push(skin.id);localStorage.setItem('owned_skins',JSON.stringify(s));SFX.powerup();openShop();});
       grid.appendChild(div);
     });
+    if(!isLoop2){
+      const banner=document.createElement('div');
+      banner.style.cssText='grid-column:1/-1;text-align:center;padding:10px;border:1px solid rgba(255,208,96,0.3);border-radius:5px;';
+      banner.innerHTML='<div style="font-size:9px;color:rgba(255,208,96,0.5);letter-spacing:2px;">\u{1F512} '+( 5-(SKINS.filter(s=>s.loop2).length)+ SKINS.filter(s=>s.loop2).length)+' SKINS IN LOOP 2</div><div style="font-size:8px;color:rgba(255,208,96,0.3);margin-top:3px;">Reach level 11</div>';
+      grid.appendChild(banner);
+    }
   }
 }
 function closeShop(){document.getElementById('screen-shop').style.display='none';ST.running=true;requestAnimationFrame(gameLoop);}
