@@ -1,0 +1,30 @@
+{
+  "accountAssociation": {
+    "header": "eyJmaWQiOjM0MTAxMywidHlwZSI6ImN1c3RvZHkiLCJrZXkiOiIweEFDM2E4OUVBOWRBNTY3ZTg2RTk3RkVlODE1YjkwYjgwNGRkMmZjNTUifQ",
+    "payload": "eyJkb21haW4iOiJiYXNlcmFpZGVycy54eXoifQ",
+    "signature": "x32URgWMwVMTwwKH3VRjJGXLhPeypOh3sX7KDTtuBwMgnQZrcLnNvviiIkWJCrrfYpOIE8pFFOP0p72yTdXr8xs="
+  },
+  "miniapp": {
+    "version": "1",
+    "name": "Base Raiders",
+    "homeUrl": "https://baseraiders.xyz",
+    "iconUrl": "https://baseraiders.xyz/icon.png",
+    "splashImageUrl": "https://baseraiders.xyz/splash.png",
+    "splashBackgroundColor": "#020810",
+    "webhookUrl": "https://baseraiders.xyz/api/webhook",
+    "subtitle": "Defend the node. Secure the chain.",
+    "description": "Arcade tower-defense on Base. Block MEV bots, hackers & rugpulls before they breach the validator node. Global leaderboard, daily streaks & power-ups featuring @jessepollak and @brian_armstrong.",
+    "screenshotUrls": [
+      "https://baseraiders.xyz/screen1.png",
+      "https://baseraiders.xyz/screen2.png",
+      "https://baseraiders.xyz/screen3.png"
+    ],
+    "primaryCategory": "games",
+    "tags": ["game", "arcade", "base", "onchain", "tower-defense"],
+    "heroImageUrl": "https://baseraiders.xyz/hero.png",
+    "tagline": "Defend the Base node",
+    "ogTitle": "Base Raiders — Onchain Arcade",
+    "ogDescription": "Block MEV bots & hackers. Global leaderboard. Play free on Base.",
+    "ogImageUrl": "https://baseraiders.xyz/og.png"
+  }
+}
