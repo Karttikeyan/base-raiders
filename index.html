@@ -1172,5 +1172,9 @@ setInterval(drawMat,55);
 setInterval(drawNodePreview,33);
 setInterval(()=>{const n=document.getElementById('block-num');if(n)n.textContent='#'+(9112045+Math.floor(Date.now()/2000)).toLocaleString();},2000);
 </script>
+  <script type="module">
+    import { sdk } from 'https://esm.sh/@farcaster/miniapp-sdk@0.0.23'
+    try { await sdk.actions.ready() } catch(e) {}
+  </script>
 </body>
 </html>
