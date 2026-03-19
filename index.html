@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>BASE RAIDERS</title>
 <style>
@@ -133,6 +134,7 @@ canvas#game{display:block;width:100%;max-width:480px;flex:1;}
     <div class="stat"><span class="stat-label">PLAYERS</span><span class="stat-value">1,204</span></div>
     <div class="stat"><span class="stat-label">TX TODAY</span><span class="stat-value">48.2K</span></div>
   </div>
+  <div class="leaderboard" id="lb-global"><div class="lb-title">Loading...</div></div>
   <div class="leaderboard">
     <div class="lb-title">&#9672; WEEKLY LEADERBOARD &#9672;</div>
     <div class="lb-row"><div class="lb-rank" style="color:var(--gold)">01</div><div class="lb-avatar">JP</div><div class="lb-name">jessepollak.eth</div><div class="lb-score">48,220</div><div class="lb-lvl">LVL 12</div></div>
@@ -181,6 +183,16 @@ canvas#game{display:block;width:100%;max-width:480px;flex:1;}
   <div id="go-streak">STREAK: 0 DAYS</div>
   <div id="go-combo">BEST COMBO: x0</div>
   <div id="go-achs"></div>
+  <div id="name-input-wrap" style="display:none;flex-direction:column;align-items:center;gap:6px;width:100%;max-width:260px;">
+    <div style="font-size:9px;letter-spacing:2px;color:var(--cyan);">YOUR LEADERBOARD NAME</div>
+    <input id="name-input" maxlength="12" placeholder="Enter name..." style="font-family:'Share Tech Mono',monospace;font-size:14px;background:rgba(0,82,255,0.1);border:1px solid var(--cyan);color:var(--text);padding:8px 12px;width:100%;text-align:center;outline:none;"/>
+    <button class="go-btn" onclick="saveNameAndSubmit()">&#10003; CONFIRM</button>
+  </div>
+  <div id="name-display-wrap" style="display:none;flex-direction:column;align-items:center;gap:4px;">
+    <div style="font-size:9px;letter-spacing:2px;color:var(--cyan);">PLAYING AS</div>
+    <div id="name-display" style="font-family:'Orbitron',sans-serif;font-size:13px;color:var(--gold);"></div>
+    <button style="font-size:8px;letter-spacing:1px;color:rgba(0,212,255,0.5);background:none;border:none;cursor:pointer;padding:2px;" onclick="changeName()">&#9998; change name</button>
+  </div>
   <button class="go-btn" id="btn-restart">&#9654; PLAY AGAIN</button>
   <button class="go-btn" style="background:linear-gradient(135deg,#7B2FBE,#0052FF);margin-top:4px" id="btn-cast">&#127744; CAST SCORE</button>
 </div>
@@ -392,6 +404,22 @@ function updateStreak(){
   if(lastDay===today)return streak;
   const ns=lastDay===today-1?streak+1:1;
   localStorage.setItem('streak',ns);localStorage.setItem('streak_last',today);return ns;
+}
+
+// SUPABASE LEADERBOARD
+const _supa=supabase.createClient('https://yteevyjtdeyctddecxnf.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl0ZWV2eWp0ZGV5Y3RkZGVjeG5mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4MzYwMDksImV4cCI6MjA4OTQxMjAwOX0.LJG7vpGkFw2N9d5V4pmMRpYbAXYuo_iMBPubJqN-NT0');
+async function submitScore(u,s,l){if(!u||s<=0)return;try{await _supa.from('scores').insert({username:u,score:s,level:l});}catch(e){}}
+async function loadLeaderboard(){try{const {data}=await _supa.from('scores').select('username,score,level').order('score',{ascending:false}).limit(10);return data||[];}catch(e){return [];}}
+async function renderLeaderboard(id){
+  const el=document.getElementById(id);if(!el)return;
+  const rows=await loadLeaderboard();
+  const medals=['🥇','🥈','🥉'];
+  let h='<div class="lb-title">🌍 GLOBAL TOP 10</div>';
+  if(!rows.length)h+='<div style="font-size:9px;color:#444;text-align:center;padding:6px">Be the first!</div>';
+  else rows.forEach((r,i)=>{
+    h+='<div class="lb-row"><span class="lb-rank">'+(medals[i]||'#'+(i+1))+'</span><span class="lb-name">'+r.username.substring(0,12)+'</span><span class="lb-score">'+r.score.toLocaleString()+'</span><span class="lb-lvl">L'+r.level+'</span></div>';
+  });
+  el.innerHTML=h;
 }
 
 // GAME STATE
@@ -945,10 +973,38 @@ function levelUp(){
   const isBossLevel=ST.level%5===0;
   setTimeout(()=>{msg.style.display='none';if(isBossLevel)spawnBoss();openShop();},1800);
 }
+function saveNameAndSubmit(){
+  const n=document.getElementById('name-input').value.trim();
+  if(!n)return;
+  const c=n.substring(0,12);
+  localStorage.setItem('player_name',c);
+  submitScore(c,ST.score,ST.level);
+  document.getElementById('name-input-wrap').style.display='none';
+  document.getElementById('name-display-wrap').style.display='flex';
+  document.getElementById('name-display').textContent=c;
+}
+function changeName(){
+  localStorage.removeItem('player_name');
+  document.getElementById('name-display-wrap').style.display='none';
+  document.getElementById('name-input-wrap').style.display='flex';
+  document.getElementById('name-input').value='';
+  setTimeout(()=>document.getElementById('name-input').focus(),100);
+}
 function gameOver(){
   ST.running=false;SFX.gameover();
   document.getElementById('go-score').textContent='SCORE: '+ST.score.toLocaleString();
   document.getElementById('go-level').textContent='LEVEL REACHED: '+ST.level;
+  const sn=localStorage.getItem('player_name');
+  if(sn){
+    submitScore(sn,ST.score,ST.level);
+    document.getElementById('name-input-wrap').style.display='none';
+    document.getElementById('name-display-wrap').style.display='flex';
+    document.getElementById('name-display').textContent=sn;
+  }else{
+    document.getElementById('name-input-wrap').style.display='flex';
+    document.getElementById('name-display-wrap').style.display='none';
+    setTimeout(()=>document.getElementById('name-input').focus(),300);
+  }
   document.getElementById('go-raid').textContent='$RAID EARNED: '+ST.raid;
   document.getElementById('go-streak').textContent='STREAK: '+(localStorage.getItem('streak')||0)+' DAYS';
   document.getElementById('go-combo').textContent='BEST COMBO: x'+ST.bestCombo;
@@ -1111,6 +1167,7 @@ function updateIntroStats(){
 }
 window.addEventListener('resize',()=>{resizeBG();drawPCB();initMat();if(ST.running){resizeGame();ST.pipes=buildPipes();}});
 resizeBG();drawPCB();initMat();preloadInfluencers();updateIntroStats();
+renderLeaderboard('lb-global');
 setInterval(drawMat,55);
 setInterval(drawNodePreview,33);
 setInterval(()=>{const n=document.getElementById('block-num');if(n)n.textContent='#'+(9112045+Math.floor(Date.now()/2000)).toLocaleString();},2000);
