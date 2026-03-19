@@ -12,7 +12,7 @@
     "splashImageUrl": "https://baseraiders.xyz/splash.png",
     "splashBackgroundColor": "#020810",
     "webhookUrl": "https://baseraiders.xyz/api/webhook",
-    "subtitle": "Defend the node. Secure the chain",
+    "subtitle": "Defend the Base node",
     "description": "Arcade tower-defense on Base. Block MEV bots, hackers and rugpulls. Global leaderboard and daily streaks.",
     "screenshotUrls": [
       "https://baseraiders.xyz/screen1.png",
