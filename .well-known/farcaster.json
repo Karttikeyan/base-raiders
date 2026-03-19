@@ -12,8 +12,8 @@
     "splashImageUrl": "https://baseraiders.xyz/splash.png",
     "splashBackgroundColor": "#020810",
     "webhookUrl": "https://baseraiders.xyz/api/webhook",
-    "subtitle": "Defend the node. Secure the chain.",
-    "description": "Arcade tower-defense on Base. Block MEV bots, hackers & rugpulls before they breach the validator node. Global leaderboard, daily streaks & power-ups featuring @jessepollak and @brian_armstrong.",
+    "subtitle": "Defend the node. Secure the chain",
+    "description": "Arcade tower-defense on Base. Block MEV bots, hackers and rugpulls. Global leaderboard and daily streaks.",
     "screenshotUrls": [
       "https://baseraiders.xyz/screen1.png",
       "https://baseraiders.xyz/screen2.png",
@@ -23,8 +23,8 @@
     "tags": ["game", "arcade", "base", "onchain", "tower-defense"],
     "heroImageUrl": "https://baseraiders.xyz/hero.png",
     "tagline": "Defend the Base node",
-    "ogTitle": "Base Raiders — Onchain Arcade",
-    "ogDescription": "Block MEV bots & hackers. Global leaderboard. Play free on Base.",
+    "ogTitle": "Base Raiders - Onchain Arcade",
+    "ogDescription": "Block MEV bots and hackers. Global leaderboard. Play free on Base.",
     "ogImageUrl": "https://baseraiders.xyz/og.png"
   }
 }
