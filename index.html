@@ -1174,7 +1174,7 @@ setInterval(()=>{const n=document.getElementById('block-num');if(n)n.textContent
 </script>
   <script type="module">
     import { sdk } from 'https://esm.sh/@farcaster/miniapp-sdk@0.0.23'
-    sdk.actions.ready().catch(function(){})
+    document.addEventListener('DOMContentLoaded', function(){ sdk.actions.ready().catch(function(){}); })
   </script>
 </body>
 </html>
