@@ -170,6 +170,7 @@ canvas#game{display:block;width:100%;max-width:480px;flex:1;}
 </div>
 
 <div id="hint">TAP PIPE &mdash; HOLD FOR CHARGED SHOT</div>
+  <div id="energy-bar" style="display:flex;gap:2px;align-items:center;margin-top:4px;"><span style="font-size:8px;letter-spacing:2px;color:rgba(0,212,255,0.6);margin-right:4px;">ENERGY</span><div id="energy-cells" style="display:flex;gap:2px;"></div></div>
 <div id="tx-msg">&#10003; TX CONFIRMED</div>
 
 <div id="screen-gameover">
@@ -442,7 +443,7 @@ const ST={
   magnet:false,cryo:false,regen:false,
   combo:0,bestCombo:0,frenzyTime:0,slowTime:0,
   shieldHit:0,orbitAngle:0,shakeTime:0,shakeIntensity:0,slowMoTime:0,
-  magnetTimer:0,bossActive:false,chargeStart:0,charging:false,
+  magnetTimer:0,bossActive:false,chargeStart:0,charging:false,energy:15,maxEnergy:15,
   totalKills:0,totalDeaths:0,rugpullKills:0,bossKills:0,totalSpent:0,
   reachedLevel3:false,unlockedAchs:[],activeSkin:'default',
 };
@@ -974,7 +975,7 @@ function levelUp(){
     if(!isDailyDone()){markDailyDone();showAchievement({emoji:'\u{1F4C5}',name:'DAILY COMPLETE'});}
   }
   if(ST.regen&&ST.level%3===0){ST.lives=Math.min(ST.lives+1,9);updateLivesHUD();}
-  ST.pipes=buildPipes();ST.enemies=[];ST.powerups=[];ST.bullets=[];ST.shootFlash={};ST.nodeOpen={};ST.particles=[];ST.blockedPipes={};
+  ST.pipes=buildPipes();ST.enemies=[];ST.powerups=[];ST.bullets=[];ST.shootFlash={};ST.nodeOpen={};ST.particles=[];ST.blockedPipes={};ST.energy=ST.maxEnergy;updateEnergyHUD();
   SFX.levelup();checkAchievements();
   const msg=document.getElementById('tx-msg');
   msg.textContent=TX_MSGS[Math.floor(Math.random()*TX_MSGS.length)];msg.style.display='block';ST.running=false;
@@ -1124,6 +1125,25 @@ function startGame(){
   requestAnimationFrame(gameLoop);
 }
 
+
+// ENERGY SYSTEM
+function updateEnergyHUD(){
+  const cells=document.getElementById('energy-cells');
+  if(!cells)return;
+  let h='';
+  for(let i=0;i<ST.maxEnergy;i++){
+    const filled=i<ST.energy;
+    h+='<div style="width:8px;height:10px;border-radius:1px;background:'+(filled?'rgba(0,212,255,0.85)':'rgba(0,212,255,0.12)')+';border:1px solid rgba(0,212,255,0.3);transition:background 0.1s;"></div>';
+  }
+  cells.innerHTML=h;
+}
+setInterval(()=>{
+  if(ST.running&&ST.energy<ST.maxEnergy){
+    ST.energy=Math.min(ST.maxEnergy,ST.energy+1);
+    updateEnergyHUD();
+  }
+},1200);
+
 // INPUT (hold for charged shot)
 let holdTarget=null,holdTimer=0,holdInterval=null;
 function handleDown(px,py){
@@ -1143,7 +1163,13 @@ function handleUp(px,py){
   const cw=document.getElementById('charge-wrap');cw.style.display='none';
   if(holdInterval){clearInterval(holdInterval);holdInterval=null;}
   if(!ST.running||!holdTarget)return;
-  shoot(holdTarget,holdTimer>=1000);holdTarget=null;holdTimer=0;drawCursor('normal');
+  const isCharged=holdTimer>=1000;
+  if(!isCharged){
+    if(ST.energy<=0){holdTarget=null;holdTimer=0;drawCursor('normal');return;}
+    ST.energy=Math.max(0,ST.energy-1);
+    updateEnergyHUD();
+  }
+  shoot(holdTarget,isCharged);holdTarget=null;holdTimer=0;drawCursor('normal');
 }
 gc.addEventListener('mousedown',e=>{e.preventDefault();handleDown(e.clientX,e.clientY);});
 gc.addEventListener('mouseup',e=>handleUp(e.clientX,e.clientY));
