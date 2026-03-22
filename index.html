@@ -137,12 +137,7 @@ canvas#game{display:block;width:100%;max-width:480px;flex:1;}
     <div class="stat"><span class="stat-label">TX TODAY</span><span class="stat-value">48.2K</span></div>
   </div>
   <div class="leaderboard" id="lb-global"><div class="lb-title">Loading...</div></div>
-  <div class="leaderboard">
-    <div class="lb-title">&#9672; WEEKLY LEADERBOARD &#9672;</div>
-    <div class="lb-row"><div class="lb-rank" style="color:var(--gold)">01</div><div class="lb-avatar">JP</div><div class="lb-name">jessepollak.eth</div><div class="lb-score">48,220</div><div class="lb-lvl">LVL 12</div></div>
-    <div class="lb-row"><div class="lb-rank" style="color:#C0C0C0">02</div><div class="lb-avatar" style="background:linear-gradient(135deg,#0052FF,#FF2D55)">BR</div><div class="lb-name">0xbr14n.base</div><div class="lb-score">31,780</div><div class="lb-lvl">LVL 9</div></div>
-    <div class="lb-row"><div class="lb-rank" style="color:#CD7F32">03</div><div class="lb-avatar" style="background:linear-gradient(135deg,#00FF8C,#0052FF)">CW</div><div class="lb-name">cryptowarrior.eth</div><div class="lb-score">24,560</div><div class="lb-lvl">LVL 7</div></div>
-  </div>
+  <div class="leaderboard" id="lb-weekly"><div class="lb-title">Loading...</div></div>
   <button class="play-btn" id="btn-play">&#9654; PLAY</button>
 </div>
 
@@ -412,7 +407,16 @@ function updateStreak(){
 
 // SUPABASE LEADERBOARD
 const _supa=supabase.createClient('https://yteevyjtdeyctddecxnf.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl0ZWV2eWp0ZGV5Y3RkZGVjeG5mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4MzYwMDksImV4cCI6MjA4OTQxMjAwOX0.LJG7vpGkFw2N9d5V4pmMRpYbAXYuo_iMBPubJqN-NT0');
-async function submitScore(u,s,l){if(!u||s<=0)return;try{await _supa.from('scores').insert({username:u,score:s,level:l});}catch(e){}}
+async function submitScore(u,s,l){if(!u||s<=0)return;try{await _supa.from('scores').insert({username:u,score:s,level:l,created_at:new Date().toISOString()});}catch(e){}}
+async function loadWeeklyLeaderboard(){
+  try{
+    const since=new Date();since.setDate(since.getDate()-7);
+    const {data}=await _supa.from('scores').select('username,score,level,created_at')
+      .gte('created_at',since.toISOString())
+      .order('score',{ascending:false}).limit(3);
+    return data||[];
+  }catch(e){return [];}
+}
 async function loadLeaderboard(){try{const {data}=await _supa.from('scores').select('username,score,level').order('score',{ascending:false}).limit(10);return data||[];}catch(e){return [];}}
 async function renderLeaderboard(id){
   const el=document.getElementById(id);if(!el)return;
@@ -1172,6 +1176,7 @@ function updateIntroStats(){
 window.addEventListener('resize',()=>{resizeBG();drawPCB();initMat();if(ST.running){resizeGame();ST.pipes=buildPipes();}});
 resizeBG();drawPCB();initMat();preloadInfluencers();updateIntroStats();
 renderLeaderboard('lb-global');
+async function renderWeekly(){const el=document.getElementById('lb-weekly');if(!el)return;const rows=await loadWeeklyLeaderboard();const medals=['🥇','🥈','🥉'];let h='<div class="lb-title">&#9672; WEEKLY LEADERBOARD &#9672;</div>';if(!rows.length){h+='<div class="lb-row"><span class="lb-name" style="color:rgba(255,255,255,0.3)">No scores this week yet</span></div>';}else{rows.forEach((r,i)=>{h+='<div class="lb-row"><span class="lb-rank">'+(medals[i]||'#'+(i+1))+'</span><span class="lb-name">'+r.username.substring(0,12)+'</span><span class="lb-score">'+r.score.toLocaleString()+'</span><span class="lb-lvl">L'+r.level+'</span></div>';});}el.innerHTML=h;}renderWeekly();
 setInterval(drawMat,55);
 setInterval(drawNodePreview,33);
 setInterval(()=>{const n=document.getElementById('block-num');if(n)n.textContent='#'+(9112045+Math.floor(Date.now()/2000)).toLocaleString();},2000);
