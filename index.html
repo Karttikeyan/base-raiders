@@ -612,7 +612,7 @@ function spawnPowerup(){
   ST.powerups.push({pipe:pipe.id,pathIdx:0,t:0,speed:0.5,type:pool[Math.floor(Math.random()*pool.length)],x:pipe.path[0].x,y:pipe.path[0].y});
 }
 function spawnInfluencer(){
-  if(!ST.pipes.length||Math.random()>0.04)return;
+  if(!ST.pipes.length||Math.random()>0.20)return;
   const pipe=ST.pipes[Math.floor(Math.random()*ST.pipes.length)];
   const inf=INFLUENCERS[Math.floor(Math.random()*INFLUENCERS.length)];
   ST.powerups.push({pipe:pipe.id,pathIdx:0,t:0,speed:0.4,isInfluencer:true,inf,x:pipe.path[0].x,y:pipe.path[0].y});
