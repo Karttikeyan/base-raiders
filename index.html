@@ -443,7 +443,7 @@ const ST={
   magnet:false,cryo:false,regen:false,
   combo:0,bestCombo:0,frenzyTime:0,slowTime:0,
   shieldHit:0,orbitAngle:0,shakeTime:0,shakeIntensity:0,slowMoTime:0,
-  magnetTimer:0,bossActive:false,chargeStart:0,charging:false,energy:15,maxEnergy:15,
+  magnetTimer:0,bossActive:false,chargeStart:0,charging:false,energy:6,maxEnergy:6,
   totalKills:0,totalDeaths:0,rugpullKills:0,bossKills:0,totalSpent:0,
   reachedLevel3:false,unlockedAchs:[],activeSkin:'default',
 };
@@ -1142,7 +1142,7 @@ setInterval(()=>{
     ST.energy=Math.min(ST.maxEnergy,ST.energy+1);
     updateEnergyHUD();
   }
-},1200);
+},2500);
 
 // INPUT (hold for charged shot)
 let holdTarget=null,holdTimer=0,holdInterval=null;
